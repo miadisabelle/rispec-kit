@@ -1,26 +1,53 @@
 # AGENTS.md
 
-## About Spec Kit and Specify
+## About RISE Spec Kit and RISPEC CLI
 
-**GitHub Spec Kit** is a comprehensive toolkit for implementing Spec-Driven Development (SDD) - a methodology that emphasizes creating clear specifications before implementation. The toolkit includes templates, scripts, and workflows that guide development teams through a structured approach to building software.
+**RISE Spec Kit** is a comprehensive toolkit for implementing Structural-First RISE Spec-Driven Development - a methodology that emphasizes structural thinking and creative archaeology before implementation. The toolkit implements the RISE Framework:
 
-**Specify CLI** is the command-line interface that bootstraps projects with the Spec Kit framework. It sets up the necessary directory structures, templates, and AI agent integrations to support the Spec-Driven Development workflow.
+- **R0 (Reality)**: Structural Thinking & Diagnosis
+- **R1 (Inspect)**: Creative Archaeology  
+- **R2 (Specify)**: Intent Refinement & Spec Creation
+- **R3 (Export)**: Multi-Audience Expressions
+- **R4 (Evolve)**: Git-log-driven Living Spec Maintenance
 
-The toolkit supports multiple AI coding assistants, allowing teams to use their preferred tools while maintaining consistent project structure and development practices.
+Built on Robert Fritz's Structural Thinking methodology and Creative Orientation framework, RISE Spec Kit helps development teams focus on what they want to CREATE rather than what they want to eliminate.
+
+**RISPEC CLI** is the command-line interface that bootstraps projects with the RISE Spec Kit framework. It sets up the necessary directory structures, templates, and AI agent integrations to support the RISE workflow.
+
+The toolkit supports multiple AI coding assistants, allowing teams to use their preferred tools while maintaining consistent project structure and structural-first development practices.
+
+---
+
+## Core Framework Concepts
+
+### Structure Determines Behavior
+The underlying structure of any system produces its predictable patterns of behavior. RISE agents treat all initial observations as structurally neutral - the goal is to see what IS, not to improve it yet.
+
+### Structural Tension
+Structural Tension = Desired Outcome − Current Reality. When both poles are clearly and accurately defined, natural progression patterns emerge that resolve the tension.
+
+### Advancing vs Oscillating Patterns
+- **Advancing**: Structures that produce inevitable movement toward a desired state
+- **Oscillating**: Structures that move back and forth without net progress
+
+### Creative Orientation
+Focus on what users want to CREATE, not what needs to be fixed or eliminated. RISE language and artifacts remain creation-focused at every layer.
 
 ---
 
 ## General practices
 
-- Any changes to `__init__.py` for the Specify CLI require a version rev in `pyproject.toml` and addition of entries to `CHANGELOG.md`.
+- Any changes to `__init__.py` for the RISPEC CLI require a version rev in `pyproject.toml` and addition of entries to `CHANGELOG.md`.
+- All command prefixes use `/rispec.*` (e.g., `/rispec.specify`, `/rispec.reality`)
+- Use Creative Advancement Scenarios instead of traditional BDD Given/When/Then
 
 ## Adding New Agent Support
 
-This section explains how to add support for new AI agents/assistants to the Specify CLI. Use this guide as a reference when integrating new AI tools into the Spec-Driven Development workflow.
+This section explains how to add support for new AI agents/assistants to the RISPEC CLI. Use this guide as a reference when integrating new AI tools into the RISE workflow.
 
 ### Overview
 
-Specify supports multiple AI agents by generating agent-specific command files and directory structures when initializing projects. Each agent has its own conventions for:
+RISPEC supports multiple AI agents by generating agent-specific command files and directory structures when initializing projects. Each agent has its own conventions for:
 
 - **Command file formats** (Markdown, TOML, etc.)
 - **Directory structures** (`.claude/commands/`, `.windsurf/workflows/`, etc.)
@@ -57,7 +84,7 @@ Follow these steps to add a new agent (using a hypothetical new agent as an exam
 
 **IMPORTANT**: Use the actual CLI tool name as the key, not a shortened version.
 
-Add the new agent to the `AGENT_CONFIG` dictionary in `src/specify_cli/__init__.py`. This is the **single source of truth** for all agent metadata:
+Add the new agent to the `AGENT_CONFIG` dictionary in `src/rispec_cli/__init__.py`. This is the **single source of truth** for all agent metadata:
 
 ```python
 AGENT_CONFIG = {
@@ -346,7 +373,7 @@ Command content with {SCRIPT} and $ARGUMENTS placeholders.
 ```markdown
 ---
 description: "Command description"
-mode: speckit.command-name
+mode: rispec.command-name
 ---
 
 Command content with {SCRIPT} and $ARGUMENTS placeholders.
@@ -403,7 +430,7 @@ Different agents use different argument placeholders:
 When adding new agents:
 
 - Consider the agent's native command/workflow patterns
-- Ensure compatibility with the Spec-Driven Development process
+- Ensure compatibility with the RISE Spec-Driven Development process
 - Document any special requirements or limitations
 - Update this guide with lessons learned
 - Verify the actual CLI tool name before adding to AGENT_CONFIG

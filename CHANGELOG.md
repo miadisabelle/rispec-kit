@@ -2,10 +2,86 @@
 
 <!-- markdownlint-disable MD024 -->
 
-All notable changes to the Specify CLI and templates are documented here.
+All notable changes to the RISPEC CLI and templates are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0] - 2026-02-01
+
+### Added - RISE Framework Integration
+
+This release marks the transformation from `specify-cli` (GitHub Spec Kit) to `rispec-cli` (RISE Spec Kit), implementing a structural-first, spec-driven creative archaeology methodology.
+
+#### Core Changes
+
+- **Package Rebranding**: Renamed from `specify-cli` to `rispec-cli`
+- **CLI Command**: Changed from `specify` to `rispec`
+- **Command Prefix**: Changed from `/speckit.*` to `/rispec.*`
+
+#### New RISE Commands
+
+The toolkit now implements the full RISE Framework phases:
+
+- `/rispec.reality` - **R0: Structural Thinking & Diagnosis**
+  - Observe current reality without hypothesis
+  - Picture what is said (mental movie technique)
+  - Ask internally motivated questions only
+  - Identify oscillating vs advancing patterns
+
+- `/rispec.inspect` - **R1: Creative Archaeology**
+  - Extract creative intent from existing systems
+  - Identify beloved qualities worth preserving
+  - Map vision-supporting, tension-resolving, and manifestation features
+  - Document advancing vs oscillating patterns
+
+- `/rispec.specify` - **R2: Intent Refinement & Spec Creation** (enhanced)
+  - Creative Advancement Scenarios replace BDD Given/When/Then
+  - Structural tension semantics in spec elements
+  - Creation-focused language patterns
+
+- `/rispec.export` - **R3: Multi-Audience Expressions**
+  - Technical documentation export
+  - Stakeholder/business communication export
+  - User experience export
+  - Agent-oriented exports for multi-agent workflows
+
+- `/rispec.evolve` - **R4: Git-log-driven Living Spec Evolution**
+  - Temporal gap analysis between specs and code
+  - Commit message mining and clustering
+  - Differential mapping to spec documents
+  - Automated spec upgrade drafts
+
+#### Framework Foundations
+
+Built on:
+- **Robert Fritz's Structural Thinking**: "Structure Determines Behavior"
+- **Creative Orientation**: Focus on what to create, not what to eliminate
+- **Structural Tension Dynamics**: Desired Outcome vs Current Reality creates natural progression
+- **Advancing vs Oscillating Patterns**: Design for inevitable movement toward goals
+- **SpecLang/Spec Kit Heritage**: Prose code, spec as source of truth, bi-directional ideation
+
+#### Multi-Agent Protocol
+
+- Defined agent roles: R0.StructuralThinker, R1.Archaeologist, R2.Specifier, R3.Exporter, R4.Maintainer
+- Shared session IDs and artifact indexes
+- Coordination protocols for agent handoffs
+
+#### MCP Tool Specification
+
+Includes specification for `rise-orchestrator` MCP tool:
+- `start_session`: Initialize RISE analysis sessions
+- `run_phase`: Execute specific RISE phases
+- `get_artifacts`: Retrieve session artifacts
+- `suggest_next_action`: AI-guided next steps
+
+### Changed
+
+- All `/speckit.*` commands renamed to `/rispec.*`
+- Enhanced language patterns to enforce creative orientation
+- Updated templates with structural tension semantics
+
+---
 
 ## [0.0.22] - 2025-11-07
 

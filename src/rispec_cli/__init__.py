@@ -10,18 +10,31 @@
 # ]
 # ///
 """
-Specify CLI - Setup tool for Specify projects
+RISPEC CLI - RISE Spec Kit Setup Tool
+
+A structural-first, spec-driven creative archaeology toolkit implementing the 
+RISE Framework (Reality → Inspect → Specify → Export) for LLMs and developers.
+
+Based on Robert Fritz's Structural Thinking methodology and the Creative Orientation 
+framework, RISPEC enables structural diagnosis before creative action.
 
 Usage:
-    uvx specify-cli.py init <project-name>
-    uvx specify-cli.py init .
-    uvx specify-cli.py init --here
+    uvx rispec-cli.py init <project-name>
+    uvx rispec-cli.py init .
+    uvx rispec-cli.py init --here
 
 Or install globally:
-    uv tool install --from specify-cli.py specify-cli
-    specify init <project-name>
-    specify init .
-    specify init --here
+    uv tool install --from rispec-cli.py rispec-cli
+    rispec init <project-name>
+    rispec init .
+    rispec init --here
+
+RISE Phases:
+    R0 - Reality:  Structural Thinking / Diagnosis (observe without hypothesis)
+    R1 - Inspect:  Creative Archaeology (extract beloved qualities)
+    R2 - Specify:  Intent Refinement & Spec Creation (Creative Advancement Scenarios)
+    R3 - Export:   Multi-Audience Expressions (tech, product, UX, agents)
+    R4 - Evolve:   Git-log-driven Living Spec Maintenance
 """
 
 import os
@@ -233,15 +246,15 @@ SCRIPT_TYPE_CHOICES = {"sh": "POSIX Shell (bash/zsh)", "ps": "PowerShell"}
 CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
 
 BANNER = """
-███████╗██████╗ ███████╗ ██████╗██╗███████╗██╗   ██╗
-██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔════╝╚██╗ ██╔╝
-███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝ 
-╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝  
-███████║██║     ███████╗╚██████╗██║██║        ██║   
-╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
+██████╗ ██╗███████╗██████╗ ███████╗ ██████╗
+██╔══██╗██║██╔════╝██╔══██╗██╔════╝██╔════╝
+██████╔╝██║███████╗██████╔╝█████╗  ██║     
+██╔══██╗██║╚════██║██╔═══╝ ██╔══╝  ██║     
+██║  ██║██║███████║██║     ███████╗╚██████╗
+╚═╝  ╚═╝╚═╝╚══════╝╚═╝     ╚══════╝ ╚═════╝
 """
 
-TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
+TAGLINE = "RISE Spec Kit - Structural-First Spec-Driven Creative Archaeology"
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -899,10 +912,10 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
 
 
 def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = None) -> None:
-    """Ensure POSIX .sh scripts under .specify/scripts (recursively) have execute bits (no-op on Windows)."""
+    """Ensure POSIX .sh scripts under .rispec/scripts (recursively) have execute bits (no-op on Windows)."""
     if os.name == "nt":
         return  # Windows: skip silently
-    scripts_root = project_path / ".specify" / "scripts"
+    scripts_root = project_path / ".rispec" / "scripts"
     if not scripts_root.is_dir():
         return
     failures: list[str] = []
@@ -942,6 +955,259 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
             for f in failures:
                 console.print(f"  - {f}")
 
+
+def build_local_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, tracker: StepTracker | None = None) -> Path:
+    """Build and extract template from local source files instead of downloading from GitHub.
+    
+    This function mimics what create-release-packages.sh does, but at runtime for development testing.
+    Uses the local templates/ directory structure.
+    """
+    # Find the repo root (where templates/, scripts/, memory/ are)
+    cli_module_path = Path(__file__).parent
+    # Go up from src/rispec_cli to repo root
+    repo_root = cli_module_path.parent.parent
+    
+    templates_dir = repo_root / "templates"
+    scripts_dir = repo_root / "scripts"
+    memory_dir = repo_root / "memory"
+    llms_dir = repo_root / "src" / "llms"
+    
+    if not templates_dir.exists():
+        raise RuntimeError(f"Local templates directory not found at {templates_dir}")
+    
+    if tracker:
+        tracker.start("fetch", "using local templates")
+        tracker.complete("fetch", str(repo_root))
+        tracker.add("download", "Build from local source")
+        tracker.start("download")
+    
+    # Create project directory if needed
+    if not is_current_dir:
+        project_path.mkdir(parents=True, exist_ok=True)
+    
+    # Create .rispec directory structure
+    rispec_dir = project_path / ".rispec"
+    rispec_dir.mkdir(exist_ok=True)
+    
+    # Copy memory directory
+    if memory_dir.exists():
+        dest_memory = rispec_dir / "memory"
+        if dest_memory.exists():
+            shutil.rmtree(dest_memory)
+        shutil.copytree(memory_dir, dest_memory)
+    
+    # Copy scripts based on script_type
+    if scripts_dir.exists():
+        dest_scripts = rispec_dir / "scripts"
+        dest_scripts.mkdir(exist_ok=True)
+        
+        if script_type == "sh" and (scripts_dir / "bash").exists():
+            if (dest_scripts / "bash").exists():
+                shutil.rmtree(dest_scripts / "bash")
+            shutil.copytree(scripts_dir / "bash", dest_scripts / "bash")
+        elif script_type == "ps" and (scripts_dir / "powershell").exists():
+            if (dest_scripts / "powershell").exists():
+                shutil.rmtree(dest_scripts / "powershell")
+            shutil.copytree(scripts_dir / "powershell", dest_scripts / "powershell")
+    
+    # Copy templates (excluding commands and rispecs)
+    dest_templates = rispec_dir / "templates"
+    dest_templates.mkdir(exist_ok=True)
+    for item in templates_dir.iterdir():
+        if item.name in ("commands", "rispecs", "vscode-settings.json"):
+            continue
+        dest_item = dest_templates / item.name
+        if item.is_file():
+            shutil.copy2(item, dest_item)
+        elif item.is_dir():
+            if dest_item.exists():
+                shutil.rmtree(dest_item)
+            shutil.copytree(item, dest_item)
+    
+    # Copy rispecs templates to project root
+    rispecs_src = templates_dir / "rispecs"
+    if rispecs_src.exists():
+        dest_rispecs = project_path / "rispecs"
+        if dest_rispecs.exists():
+            shutil.rmtree(dest_rispecs)
+        shutil.copytree(rispecs_src, dest_rispecs)
+    
+    # Copy LLMS guidance files
+    if llms_dir.exists():
+        dest_llms = project_path / "src" / "llms"
+        dest_llms.parent.mkdir(parents=True, exist_ok=True)
+        if dest_llms.exists():
+            shutil.rmtree(dest_llms)
+        shutil.copytree(llms_dir, dest_llms)
+    
+    # Generate agent-specific command files
+    commands_src = templates_dir / "commands"
+    
+    # Determine output directory and format based on agent
+    if ai_assistant == "claude":
+        cmd_dir = project_path / ".claude" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "gemini":
+        cmd_dir = project_path / ".gemini" / "commands"
+        ext = "toml"
+        arg_format = "{{args}}"
+    elif ai_assistant == "copilot":
+        cmd_dir = project_path / ".github" / "agents"
+        ext = "agent.md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "cursor-agent":
+        cmd_dir = project_path / ".cursor" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "qwen":
+        cmd_dir = project_path / ".qwen" / "commands"
+        ext = "toml"
+        arg_format = "{{args}}"
+    elif ai_assistant == "opencode":
+        cmd_dir = project_path / ".opencode" / "command"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "windsurf":
+        cmd_dir = project_path / ".windsurf" / "workflows"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "codex":
+        cmd_dir = project_path / ".codex" / "prompts"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "kilocode":
+        cmd_dir = project_path / ".kilocode" / "workflows"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "auggie":
+        cmd_dir = project_path / ".augment" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "roo":
+        cmd_dir = project_path / ".roo" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "codebuddy":
+        cmd_dir = project_path / ".codebuddy" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "qoder":
+        cmd_dir = project_path / ".qoder" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "amp":
+        cmd_dir = project_path / ".agents" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "shai":
+        cmd_dir = project_path / ".shai" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "q":
+        cmd_dir = project_path / ".amazonq" / "prompts"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    elif ai_assistant == "bob":
+        cmd_dir = project_path / ".bob" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    else:
+        cmd_dir = project_path / f".{ai_assistant}" / "commands"
+        ext = "md"
+        arg_format = "$ARGUMENTS"
+    
+    cmd_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Process each command template
+    if commands_src.exists():
+        for template_file in commands_src.glob("*.md"):
+            name = template_file.stem
+            content = template_file.read_text()
+            
+            # Extract script command from frontmatter
+            script_cmd = ""
+            for line in content.split("\n"):
+                if line.strip().startswith(f"{script_type}:"):
+                    script_cmd = line.split(":", 1)[1].strip()
+                    break
+            
+            # Replace placeholders
+            body = content
+            body = body.replace("{SCRIPT}", script_cmd)
+            body = body.replace("{ARGS}", arg_format)
+            body = body.replace("__AGENT__", ai_assistant)
+            # Rewrite paths for .rispec structure
+            body = body.replace("memory/", ".rispec/memory/")
+            body = body.replace("scripts/", ".rispec/scripts/")
+            body = body.replace("templates/", ".rispec/templates/")
+            
+            # Remove scripts: section from frontmatter
+            lines = body.split("\n")
+            output_lines = []
+            skip_scripts = False
+            in_frontmatter = False
+            dash_count = 0
+            for line in lines:
+                if line.strip() == "---":
+                    dash_count += 1
+                    in_frontmatter = (dash_count == 1)
+                    output_lines.append(line)
+                    continue
+                if in_frontmatter:
+                    if line.startswith("scripts:") or line.startswith("agent_scripts:"):
+                        skip_scripts = True
+                        continue
+                    if skip_scripts:
+                        if line.startswith("  ") or line.startswith("\t"):
+                            continue
+                        skip_scripts = False
+                output_lines.append(line)
+            body = "\n".join(output_lines)
+            
+            # Write output file with rispec. prefix
+            if ext == "toml":
+                # Extract description for TOML format
+                description = ""
+                for line in content.split("\n"):
+                    if line.startswith("description:"):
+                        description = line.split(":", 1)[1].strip().strip('"').strip("'")
+                        break
+                body = body.replace("\\", "\\\\")
+                toml_content = f'description = "{description}"\n\nprompt = """\n{body}\n"""'
+                output_file = cmd_dir / f"rispec.{name}.{ext}"
+                output_file.write_text(toml_content)
+            else:
+                output_file = cmd_dir / f"rispec.{name}.{ext}"
+                output_file.write_text(body)
+    
+    # For copilot, also generate prompt files
+    if ai_assistant == "copilot":
+        prompts_dir = project_path / ".github" / "prompts"
+        prompts_dir.mkdir(parents=True, exist_ok=True)
+        for agent_file in cmd_dir.glob("rispec.*.agent.md"):
+            basename = agent_file.stem.replace(".agent", "")
+            prompt_file = prompts_dir / f"{basename}.prompt.md"
+            prompt_file.write_text(f"---\nagent: {basename}\n---\n")
+        
+        # Copy vscode settings
+        vscode_dir = project_path / ".vscode"
+        vscode_dir.mkdir(exist_ok=True)
+        vscode_settings = templates_dir / "vscode-settings.json"
+        if vscode_settings.exists():
+            shutil.copy2(vscode_settings, vscode_dir / "settings.json")
+    
+    if tracker:
+        tracker.complete("download", f"built from local ({ai_assistant}/{script_type})")
+        tracker.add("extract", "Copy local files")
+        tracker.complete("extract", "local templates copied")
+        tracker.add("zip-list", "Template structure")
+        tracker.complete("zip-list", "from source tree")
+        tracker.add("extracted-summary", "Extraction summary")
+        tracker.complete("extracted-summary", "local build complete")
+    
+    return project_path
+
 @app.command()
 def init(
     project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here, or use '.' for current directory)"),
@@ -954,30 +1220,32 @@ def init(
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    local: bool = typer.Option(False, "--local", help="Use local template files instead of downloading from GitHub (for development)"),
 ):
     """
-    Initialize a new Specify project from the latest template.
+    Initialize a new RISPEC project from the latest template.
     
     This command will:
     1. Check that required tools are installed (git is optional)
     2. Let you choose your AI assistant
-    3. Download the appropriate template from GitHub
+    3. Download the appropriate template from GitHub (or use --local for local templates)
     4. Extract the template to a new project directory or current directory
     5. Initialize a fresh git repository (if not --no-git and no existing repo)
     6. Optionally set up AI assistant commands
     
     Examples:
-        specify init my-project
-        specify init my-project --ai claude
-        specify init my-project --ai copilot --no-git
-        specify init --ignore-agent-tools my-project
-        specify init . --ai claude         # Initialize in current directory
-        specify init .                     # Initialize in current directory (interactive AI selection)
-        specify init --here --ai claude    # Alternative syntax for current directory
-        specify init --here --ai codex
-        specify init --here --ai codebuddy
-        specify init --here
-        specify init --here --force  # Skip confirmation when current directory not empty
+        rispec init my-project
+        rispec init my-project --ai claude
+        rispec init my-project --ai copilot --no-git
+        rispec init --ignore-agent-tools my-project
+        rispec init . --ai claude         # Initialize in current directory
+        rispec init .                     # Initialize in current directory (interactive AI selection)
+        rispec init --here --ai claude    # Alternative syntax for current directory
+        rispec init --here --ai codex
+        rispec init --here --ai codebuddy
+        rispec init --here
+        rispec init --here --force  # Skip confirmation when current directory not empty
+        rispec init my-project --ai claude --local  # Use local templates (development)
     """
 
     show_banner()
@@ -1120,11 +1388,15 @@ def init(
     with Live(tracker.render(), console=console, refresh_per_second=8, transient=True) as live:
         tracker.attach_refresh(lambda: live.update(tracker.render()))
         try:
-            verify = not skip_tls
-            local_ssl_context = ssl_context if verify else False
-            local_client = httpx.Client(verify=local_ssl_context)
+            if local:
+                # Use local templates instead of downloading from GitHub
+                build_local_template(project_path, selected_ai, selected_script, here, tracker=tracker)
+            else:
+                verify = not skip_tls
+                local_ssl_context = ssl_context if verify else False
+                local_client = httpx.Client(verify=local_ssl_context)
 
-            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
+                download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
             ensure_executable_scripts(project_path, tracker=tracker)
 
@@ -1217,13 +1489,16 @@ def init(
         steps_lines.append(f"{step_num}. Set [cyan]CODEX_HOME[/cyan] environment variable before running Codex: [cyan]{cmd}[/cyan]")
         step_num += 1
 
-    steps_lines.append(f"{step_num}. Start using slash commands with your AI agent:")
+    steps_lines.append(f"{step_num}. Start using RISE slash commands with your AI agent:")
 
-    steps_lines.append("   2.1 [cyan]/speckit.constitution[/] - Establish project principles")
-    steps_lines.append("   2.2 [cyan]/speckit.specify[/] - Create baseline specification")
-    steps_lines.append("   2.3 [cyan]/speckit.plan[/] - Create implementation plan")
-    steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - Generate actionable tasks")
-    steps_lines.append("   2.5 [cyan]/speckit.implement[/] - Execute implementation")
+    steps_lines.append("   2.1 [cyan]/rispec.constitution[/] - Establish project principles")
+    steps_lines.append("   2.2 [cyan]/rispec.reality[/] - Structural thinking & diagnosis (R0)")
+    steps_lines.append("   2.3 [cyan]/rispec.inspect[/] - Creative archaeology & beloved qualities (R1)")
+    steps_lines.append("   2.4 [cyan]/rispec.specify[/] - Create baseline specification with Creative Advancement Scenarios (R2)")
+    steps_lines.append("   2.5 [cyan]/rispec.plan[/] - Create structural implementation plan")
+    steps_lines.append("   2.6 [cyan]/rispec.tasks[/] - Generate actionable tasks")
+    steps_lines.append("   2.7 [cyan]/rispec.implement[/] - Execute implementation")
+    steps_lines.append("   2.8 [cyan]/rispec.export[/] - Multi-audience export (R3)")
 
     steps_panel = Panel("\n".join(steps_lines), title="Next Steps", border_style="cyan", padding=(1,2))
     console.print()
@@ -1232,9 +1507,10 @@ def init(
     enhancement_lines = [
         "Optional commands that you can use for your specs [bright_black](improve quality & confidence)[/bright_black]",
         "",
-        f"○ [cyan]/speckit.clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/speckit.plan[/] if used)",
-        f"○ [cyan]/speckit.analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/speckit.tasks[/], before [cyan]/speckit.implement[/])",
-        f"○ [cyan]/speckit.checklist[/] [bright_black](optional)[/bright_black] - Generate quality checklists to validate requirements completeness, clarity, and consistency (after [cyan]/speckit.plan[/])"
+        f"○ [cyan]/rispec.clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/rispec.plan[/] if used)",
+        f"○ [cyan]/rispec.analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/rispec.tasks[/], before [cyan]/rispec.implement[/])",
+        f"○ [cyan]/rispec.checklist[/] [bright_black](optional)[/bright_black] - Generate quality checklists to validate requirements completeness, clarity, and consistency (after [cyan]/rispec.plan[/])",
+        f"○ [cyan]/rispec.evolve[/] [bright_black](optional)[/bright_black] - Git-log-driven spec evolution & maintenance (R4)"
     ]
     enhancements_panel = Panel("\n".join(enhancement_lines), title="Enhancement Commands", border_style="cyan", padding=(1,2))
     console.print()
@@ -1274,7 +1550,7 @@ def check():
 
     console.print(tracker.render())
 
-    console.print("\n[bold green]Specify CLI is ready to use![/bold green]")
+    console.print("\n[bold green]RISPEC CLI is ready to use![/bold green]")
 
     if not git_ok:
         console.print("[dim]Tip: Install git for repository management[/dim]")
@@ -1353,7 +1629,7 @@ def version():
 
     panel = Panel(
         info_table,
-        title="[bold cyan]Specify CLI Information[/bold cyan]",
+        title="[bold cyan]RISPEC CLI Information[/bold cyan]",
         border_style="cyan",
         padding=(1, 2)
     )
